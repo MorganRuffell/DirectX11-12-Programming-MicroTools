@@ -1,0 +1,15 @@
+﻿#pragma once
+#include <winrt/Windows.Foundation.h>
+#include <winrt/Windows.Foundation.Collections.h>
+#include <wrl/client.h>
+#include "dxgi1_6.h"
+#include <iostream>
+#include "combaseapi.h"
+#include <stdio.h>
+#include <string>
+#include <windows.h>
+#include <iomanip>
+#include <d3d12.h>
+#include <dxgi1_4.h>
+#include <D3Dcompiler.h>
+#include <DirectXMath.h>
