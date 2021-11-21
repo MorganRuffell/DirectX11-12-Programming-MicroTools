@@ -1,6 +1,7 @@
 ﻿#include "pch.h"
 #include <thread>
 
+#define Silence
 
 using namespace winrt;
 using namespace Microsoft::WRL;
@@ -8,7 +9,6 @@ using namespace Microsoft::WRL;
 
 void CheckCompatibility(ComPtr<ID3D12Device8>& GraphicsCard)
 {
-	//Documentation: https://docs.microsoft.com/en-us/windows/win32/api/d3d12/ne-d3d12-d3d12_feature
 
 	D3D12_FEATURE_DATA_D3D12_OPTIONS BasicDX12Support{};
 	D3D12_FEATURE_DATA_D3D12_OPTIONS5 RaytracingCheck{};
@@ -27,7 +27,6 @@ void CheckCompatibility(ComPtr<ID3D12Device8>& GraphicsCard)
 	HRESULT TypeOfArchitecture = GraphicsCard->CheckFeatureSupport(D3D12_FEATURE_ARCHITECTURE1, &AdapterProperties, sizeof(AdapterProperties));
 
 
-
 	//To do -  fix me!
 	//HRESULT ScopeOfFeatureLevelSupport = GraphicsCard->CheckFeatureSupport(D3D12_FEATURE_FEATURE_LEVELS, &FeatureLevels, sizeof(FeatureLevels)); 
 	//HRESULT MaxShaderLevel = GraphicsCard->CheckFeatureSupport(D3D12_FEATURE_SHADER_MODEL, &ShaderModels, sizeof(ShaderModels));
@@ -44,10 +43,28 @@ void CheckCompatibility(ComPtr<ID3D12Device8>& GraphicsCard)
 			std::cout << "	" << " Supports GPU based DXR" << std::endl;
 		}
 
+		if (RaytracingCheck.RenderPassesTier == D3D12_RENDER_PASS_TIER_0)
+		{
+			std::cout << "	" << " Render Passes are only software emulated" << std::endl;
+
+		}
+
+		if (RaytracingCheck.RenderPassesTier == D3D12_RENDER_PASS_TIER_1)
+		{
+			std::cout << "	" << " Render Passes are implemented by the user-mode display driver. Render Target/depth buffer may also be accelerated. UAV writes are not supported within render passes" << std::endl;
+		}
+
+		if (RaytracingCheck.RenderPassesTier == D3D12_RENDER_PASS_TIER_2)
+		{
+			std::cout << "	" << " Render Passes are implemented by the user-mode display driver. Render Target/depth buffer may also be accelerated. UAV writes are supported within render passes" << std::endl;
+		}
+
 		if (MeshAndAmplificationShaders.MeshShaderTier != D3D12_MESH_SHADER_TIER_NOT_SUPPORTED)
 		{
 			std::cout << "	" << " Supports GPU based Mesh Shaders" << std::endl;
 		}
+
+
 		});
 
 	Outputthread.join();
@@ -188,7 +205,6 @@ int main()
 		std::thread ThreadB = std::thread([&]() {
 			ComPtr<IDXGIAdapter4> NewAdapter;
 
-
 			HRESULT Res = D3D12CreateDevice(nullptr, D3D_FEATURE_LEVEL_12_0, IID_PPV_ARGS(&DirectX12Device));
 			if (FAILED(Res))
 				std::cout << "Failed to create device instance!" << std::endl;
@@ -199,7 +215,7 @@ int main()
 
 
 			NewAdapter->GetDesc3(&AdapterInfo);
-			});
+		});
 
 		std::wstring text = L" Adapter: ";
 
@@ -233,7 +249,10 @@ int main()
 			CheckCompatibility(DirectX12Device);
 		});
 
-		std::cout << " " << std::endl << std::endl;
+		//std::cout << "	" << " " <<  std::endl;
+
+
+		std::cout << " " << std::endl;
 		ThreadE.join();
 		index++;
 	}
